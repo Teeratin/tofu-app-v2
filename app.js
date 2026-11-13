@@ -239,6 +239,12 @@ const faceInner=p=>PETIMG[p.species]?`<img src="${PETIMG[p.species]}" alt="" ari
 const face=(p,cls)=>`<span class="face ${cls||''}">${faceInner(p)}</span>`;
 /* reusable pet avatar: pet picture (or letter on pet colour) under the hole of the one-piece Nim frame (pet-frame.png). Hole: centre 50%/59.375%, Ø46.1% of the frame box. size: sm | md | lg */
 const petAva=(p,size,label)=>`<span class="pava ${size||'md'}"${label?` role="img" aria-label="${esc(label)}"`:' aria-hidden="true"'}><span class="pava-pet">${faceInner(p)}</span><img class="pava-frame" src="${IC}pet-frame.png" alt="" aria-hidden="true" decoding="async"></span>`;
+/* Thai-safe text: wrap only between segments (spaces / " · "), never mid-word */
+const nwText=t=>String(t||'').split(' · ').map(seg=>seg.split(' ').map(w=>`<span class="nw">${esc(w)}</span>`).join(' ')).join(' · ');
+/* pet profile name: one line, shrink to fit (min 24px); if still too long, wrap at Thai word boundaries only */
+function fitPetName(){const n=document.querySelector('.scr-pet .pet-name');if(!n)return;n.style.fontSize='';n.classList.remove('wrap');
+  let fs=parseFloat(getComputedStyle(n).fontSize);while(n.scrollWidth>n.clientWidth+1&&fs>24){fs-=1;n.style.fontSize=fs+'px'}
+  if(n.scrollWidth>n.clientWidth+1)n.classList.add('wrap')}
 const petArt=p=>PETIMG[p.species]||NIM.pets;
 const emptyBox=(title,text,btn,mini,pose)=>`<div class="empty ${mini?'mini':''}">${nimImg(pose||'check','',mini?84:120)}<h3>${title}</h3><p>${text}</p>${btn||''}</div>`;
 const breedTxt=p=>!p.breed?'':(p.breed===BREED_UNK?'ไม่ทราบพันธุ์':p.breed);
@@ -366,11 +372,11 @@ function vacPill(pid){const {groups,c}=vacSummary(pid);
   return `<span class="pill cobalt">วัคซีนครบ เก่งมาก</span>`}
 function petDetail(id){
   const p=pet(id);if(!p)return notFound();
-  st.selPet=id;save();
+  st.selPet=id;save();afterRender.push(fitPetName);
   const s=SP[p.species]||SP.other;const {groups}=vacSummary(id);const ups=upcoming(id);const visits=st.visits.filter(v=>v.petId===id);const lw=latestWeight(p);const nN=st.notes.filter(n=>n.petId===id).length;
   return `<div class="screen scr-pet"><header class="hero">${statusGap}${topActions(backBtn('#/home'),icoBtn('edit','แก้ไขข้อมูล'+esc(p.name),`data-go="#/pet/${id}/edit"`))}
    <div class="bento"><article class="tile greet pet-card"><span class="tape tape-top">น้อง${esc(p.name)}</span><h2 class="pet-name">${esc(p.name)}</h2>
-     <p class="caption strong">${esc(s.label)}${p.breed?' · '+esc(breedTxt(p)):''}</p>
+     <p class="caption strong">${nwText(s.label+(p.breed?' · '+breedTxt(p):''))}</p>
      <div class="chips">${vacPill(id)}<span class="pill ink">${SEX[p.sex]||'ไม่ระบุ'}</span><span class="pill yellow">${dot(p)}สี${esc(colorName(p))}</span></div>
      ${petAva(p,'lg')}</article>
     <button class="tile poster" type="button" data-act="weight" data-pet="${id}" aria-label="น้ำหนัก ${lw?lw.kg+' กิโลกรัม':'ยังไม่มี'} แตะเพื่ออัปเดตและดูกราฟ"><img src="${NIM.weight}" alt=""><b>${lw?lw.kg:'—'}</b><span class="sub">กก. · อัปเดต</span></button></div></header>
@@ -1016,6 +1022,8 @@ document.addEventListener('keydown',e=>{
     i=e.key==='Home'?0:e.key==='End'?list.length-1:(i+(e.key==='ArrowRight'?1:-1)+list.length)%list.length;e.preventDefault();list[i].focus();list[i].click()}
 });
 
+{let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(fitPetName,80)})}
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitPetName);
 window.__tofu={get st(){return st},seed,migrate,save,migratedFrom};
 route();
 })();

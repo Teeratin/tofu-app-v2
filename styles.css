@@ -370,9 +370,6 @@ select.input{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3
 .scr-home>.content{margin-top:10px}
 
 /* ===== per-screen ===== */
-.scr-pet .pet-card{min-height:196px}
-.scr-pet .pet-name{font-size:36px;margin-top:6px;line-height:1.25;word-break:break-word;padding-right:4px}
-.scr-pet .chips{margin-top:10px;max-width:calc(100% - 40px)}
 .scr-pet .facts{margin-top:4px}
 .scr-pet .tile.poster{min-height:196px}
 .scr-health .hero{padding-bottom:52px}
@@ -542,10 +539,6 @@ select.input{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3
 .postage .pava{margin:-10px 0 2px -10px}
 .tile.rec .pava{margin:-12px -4px -6px -10px}
 /* pet profile: avatar sits inside the card, never over the text */
-.scr-pet .pet-card{min-height:0;padding-bottom:18px}
-.scr-pet .pet-card .pava{position:absolute;top:-30px;right:-2px;z-index:4}
-.scr-pet .pet-name,.scr-pet .pet-card .caption{padding-right:118px}
-.scr-pet .pet-card .chips{max-width:none;margin-top:14px}
 .scr-pet .tile.poster{min-height:0}
 /* pet profile: stats card vs menu card */
 .stat-card{position:relative;background:#fff;border:2.25px solid var(--ink);border-radius:22px;box-shadow:0 4px 0 var(--ink);padding:20px 8px 12px;margin-top:10px}
@@ -573,3 +566,14 @@ select.input{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3
 .mday.sel .n{color:var(--offwhite)}.mday.sel .cmore{color:var(--offwhite)}
 .mday.sel .dot{border-color:var(--offwhite)}
 .month-card .seg{margin-bottom:0}
+
+/* ===== pet profile card: layout A (avatar centred on top, Nim pokes above the card edge) ===== */
+.scr-pet .bento{margin-top:58px}
+.scr-pet .pet-card{min-width:0;min-height:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 12px 26px}
+.scr-pet .pet-card .pava{order:-1;position:relative;margin:-60px auto -6px;z-index:4}
+.scr-pet .pet-name{width:100%;margin-top:0;font-size:34px;line-height:1.25;white-space:nowrap;word-break:keep-all;overflow-wrap:normal;overflow:hidden;text-overflow:ellipsis}
+.scr-pet .pet-name.wrap{white-space:normal;text-overflow:clip;line-height:1.2;overflow:visible}
+.scr-pet .pet-card .caption{margin-top:2px;word-break:keep-all;overflow-wrap:normal}
+.pet-card .nw{white-space:nowrap}
+.scr-pet .pet-card .chips{justify-content:center;margin-top:12px;max-width:none}
+.scr-pet .pet-card .tape-top{top:auto;bottom:-13px;left:50%;transform:translateX(-50%) rotate(-2deg);max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
