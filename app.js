@@ -100,7 +100,7 @@ const VACS=[
 const VACMAP=Object.fromEntries(VACS.map(v=>[v.value,v]));
 const vacOpts=sp=>VACS.filter(v=>v.species==='all'||v.species===sp);
 const IC='';
-const NIM={main:IC+'nim-hero.png',hello:IC+'nim-pets.png',writing:IC+'nim-note.png',trash:IC+'nim-alert.png',syringe:IC+'nim-syringe.png',healthbook:IC+'nim-healthbook.png',appointment:IC+'nim-calendar.png',thumbsup:IC+'nim-check.png',sleep:IC+'nim-check.png',badge:IC+'nim-family.png',alert:IC+'nim-alert.png',bell:IC+'nim-bell.png',reminder:IC+'nim-reminder.png',family:IC+'nim-family.png',weight:IC+'nim-weight.png',check:IC+'nim-check.png',note:IC+'nim-note.png',pets:IC+'nim-pets.png',calendar:IC+'nim-calendar.png'};
+const NIM={main:IC+'nim-hero.png',hello:IC+'nim-pets.png',writing:IC+'nim-note.png',trash:IC+'nim-alert.png',syringe:IC+'nim-syringe.png',healthbook:IC+'nim-healthbook.png',appointment:IC+'nim-calendar.png',thumbsup:IC+'nim-check.png',sleep:IC+'nim-check.png',badge:IC+'nim-family.png',alert:IC+'nim-alert.png',bell:IC+'nim-bell.png',reminder:IC+'nim-reminder.png',family:IC+'nim-family.png',weight:IC+'nim-weight.png',check:IC+'nim-check.png',note:IC+'nim-note.png',pets:IC+'nim-pets.png',calendar:IC+'nim-calendar.png',cling:IC+'nim-cling.png'};
 const PETIMG={cat:IC+'pet-cat.png',dog:IC+'pet-dog.png',rabbit:IC+'pet-rabbit.png'};
 const NIM_DESC='ก้อนเต้าหู้ไหมหน้าตาย ใส่หมวกพยาบาลลายอุ้งเท้า มีต้นหอมแปะหัว คอยจดทุกนัดแบบขี้เกียจแต่ชัวร์';
 
@@ -237,13 +237,15 @@ const dot=(p,cls)=>`<i class="dot ${p.color==='calico'?'calico':''} ${p.color===
 const pbadge=p=>p?`<span class="pet-chip">${dot(p)}<span class="pb-name">${esc(p.name)}</span></span>`:'';
 const faceInner=p=>PETIMG[p.species]?`<img src="${PETIMG[p.species]}" alt="" aria-hidden="true" decoding="async">`:`<span class="letter" style="background:${colorHex(p)}">${esc(String(p.name||'?').slice(0,1))}</span>`;
 const face=(p,cls)=>`<span class="face ${cls||''}">${faceInner(p)}</span>`;
+/* reusable pet avatar: pet picture (or letter on pet colour) in a round frame with a tiny Nim clinging on the rim. size: sm | md | lg */
+const petAva=(p,size,label)=>`<span class="pava ${size||'md'}"${label?` role="img" aria-label="${esc(label)}"`:' aria-hidden="true"'}><span class="pava-ring">${faceInner(p)}</span><img class="pava-nim" src="${NIM.cling}" alt="" aria-hidden="true" decoding="async"></span>`;
 const petArt=p=>PETIMG[p.species]||NIM.pets;
 const emptyBox=(title,text,btn,mini,pose)=>`<div class="empty ${mini?'mini':''}">${nimImg(pose||'check','',mini?84:120)}<h3>${title}</h3><p>${text}</p>${btn||''}</div>`;
 const breedTxt=p=>!p.breed?'':(p.breed===BREED_UNK?'ไม่ทราบพันธุ์':p.breed);
 const petMeta=p=>{const s=SP[p.species]||SP.other;return [s.label,breedTxt(p),p.birth?age(p):'ไม่ทราบอายุ'].filter(Boolean).map(esc).join(' · ')};
 const shortDate=s=>{const d=parse(s);return d?`${d.getDate()} ${MS[d.getMonth()]}`:'—'};
 let toastT,toastUndo=null;
-function toast(t,undo){toastEl.innerHTML=`<span class="toast-msg">${esc(t)}</span>${undo?'<button type="button" class="toast-act" data-act="undo">เลิกทำ</button>':''}`;toastUndo=undo||null;
+function toast(t,undo){toastEl.innerHTML=`<img class="toast-nim" src="${undo?NIM.trash:NIM.check}" alt="" aria-hidden="true"><span class="toast-msg">${esc(t)}</span>${undo?'<button type="button" class="toast-act" data-act="undo">เลิกทำ</button>':''}`;toastUndo=undo||null;
   toastEl.classList.add('show');clearTimeout(toastT);toastT=setTimeout(hideToast,undo?6500:2600);
   document.querySelectorAll('.nim-break,.sheet-head .nim,.empty .nim,.dlg-art .nim').forEach(img=>{img.classList.remove('mascot-react');void img.offsetWidth;img.classList.add('mascot-react')})}
 function hideToast(){toastEl.classList.remove('show');toastUndo=null;setTimeout(()=>{if(!toastEl.classList.contains('show'))toastEl.innerHTML=''},350)}
@@ -370,15 +372,15 @@ function petDetail(id){
    <div class="bento"><article class="tile greet pet-card"><span class="tape tape-top">น้อง${esc(p.name)}</span><h2 class="pet-name">${esc(p.name)}</h2>
      <p class="caption strong">${esc(s.label)}${p.breed?' · '+esc(breedTxt(p)):''}</p>
      <div class="chips">${vacPill(id)}<span class="pill ink">${SEX[p.sex]||'ไม่ระบุ'}</span><span class="pill yellow">${dot(p)}สี${esc(colorName(p))}</span></div>
-     <img class="nim-break pet-art" src="${petArt(p)}" alt="" aria-hidden="true"></article>
+     ${petAva(p,'lg')}</article>
     <button class="tile poster" type="button" data-act="weight" data-pet="${id}" aria-label="น้ำหนัก ${lw?lw.kg+' กิโลกรัม':'ยังไม่มี'} แตะเพื่ออัปเดตและดูกราฟ"><img src="${NIM.weight}" alt=""><b>${lw?lw.kg:'—'}</b><span class="sub">กก. · อัปเดต</span></button></div></header>
    <section class="content">
-    <div class="facts"><div><b>${p.birth?age(p):'—'}</b><span>อายุ</span></div><div><b>${groups.length} ชนิด</b><span>วัคซีน</span></div><div><b>${visits.length} ครั้ง</b><span>หาหมอ</span></div></div>
-    <div class="icon-row">
+    <section class="stat-card" aria-label="ตัวเลขของน้อง"><span class="tape stat-tape">ตัวเลขของน้อง</span><div class="facts"><div><b>${p.birth?age(p):'—'}</b><span>อายุ</span></div><div><b>${groups.length} ชนิด</b><span>วัคซีน</span></div><div><b>${visits.length} ครั้ง</b><span>หาหมอ</span></div></div></section>
+    <section class="menu-card" aria-labelledby="pmenu-h"><h2 class="menu-h" id="pmenu-h">เมนูของน้อง</h2><div class="icon-row">
      <button type="button" data-go="#/health/${id}?tab=vac"><img src="${NIM.healthbook}" alt=""><b>สมุดสุขภาพ</b><span>วัคซีน ${groups.length} · หาหมอ ${visits.length}</span></button>
      <button type="button" data-go="#/appts?pet=${id}"><img src="${NIM.calendar}" alt=""><b>นัดหมาย</b><span>${ups.length?'ถัดไป '+shortDate(ups[0].date):'ยังไม่มีนัด'}</span></button>
      <button type="button" data-go="#/health/${id}?tab=notes"><img src="${NIM.note}" alt=""><b>โน๊ตเจ้าของ</b><span>${nN?nN+' โน๊ต':'ยังไม่มีโน๊ต'}</span></button>
-     <button type="button" data-go="#/share?pet=${id}"><img src="${NIM.family}" alt=""><b>แชร์ครอบครัว</b><span>ตัวอย่าง · ${st.family.members.length} คน</span></button></div>
+     <button type="button" data-go="#/share?pet=${id}"><img src="${NIM.family}" alt=""><b>แชร์ครอบครัว</b><span>ตัวอย่าง · ${st.family.members.length} คน</span></button></div></section>
     <div class="section-head"><h2>นัดที่กำลังจะถึง</h2><button type="button" class="link" data-act="addAppt" data-pet="${id}">เพิ่มนัด</button></div>
     ${ups.length?ups.slice(0,3).map(it=>itemCard(it,{pet:1})).join(''):`<div class="tile pad">${emptyBox('ไม่มีนัดเลย','ว่างขนาดนี้ ไปนอนกลิ้งกันได้','',true)}</div>`}
     <div class="section-head"><h2>ประวัติน้อง</h2></div>
@@ -466,7 +468,7 @@ function healthScreen(id){
       ${groups.length?groups.map(g=>{const s=g.status;const lv=g.latest;const vb=vacVerb(g.label);
         const booked=s==='over'?st.appts.filter(a=>a.petId===g.petId&&a.vacKey===g.key&&a.status!=='done'&&diff(a.date)>=0).sort(byDT)[0]:null;
         return `<button type="button" class="postage" data-act="vacGroup" data-pet="${g.petId}" data-key="${esc(g.key)}">
-        <span class="rubber pill ${VPILL[s]}">${VS[s]}</span><img class="postage-ico" src="${NIM.syringe}" alt="">${all?`<span class="pc">${bd(g.petId)}</span>`:''}
+        <span class="rubber pill ${VPILL[s]}">${VS[s]}</span>${all?petAva(pet(g.petId),'md','ของ'+pet(g.petId).name):`<img class="postage-ico" src="${NIM.syringe}" alt="">`}${all?`<span class="pc">${bd(g.petId)}</span>`:''}
         <span class="title">${esc(g.label)}</span>
         <span class="meta">${vb}ล่าสุด ${lv.given?fmt(lv.given):'ยังไม่ลง'}</span>
         <span class="meta">ครั้งถัดไป ${lv.next?fmt(lv.next)+(s!=='over'?' · '+rel(lv.next):''):'—'}</span>
@@ -481,7 +483,7 @@ function healthScreen(id){
         <div class="tile poster tilt-l"><span class="kicker">นัดหมอที่จะถึง</span><b>${cu}</b><span class="sub">ไปตามนัดแล้ว ${cd} ครั้ง</span></div>
         <div class="tile overdue ${co?'':'calm'}"><span class="kicker">เลยนัดหมอ</span><b>${co}</b><span class="sub">${co?'ยังไม่ได้เช็คว่าไป':'ไม่มี เก่งมาก'}</span></div></div>`;
     panel=`<div class="section-head"><h2>ประวัติหาหมอของ${whose}</h2><button type="button" class="link" data-act="addVisit"${petAttr}>+ บันทึก</button></div>
-      ${vis.length?vis.map(v=>`<button type="button" class="tile rec" data-act="editVisit" data-id="${v.id}"><img class="rec-ico" src="${NIM.healthbook}" alt="">
+      ${vis.length?vis.map(v=>`<button type="button" class="tile rec" data-act="editVisit" data-id="${v.id}">${all?petAva(pet(v.petId),'sm','ของ'+pet(v.petId).name):`<img class="rec-ico" src="${NIM.healthbook}" alt="">`}
         <span class="rec-b">${all?`<span class="pc">${bd(v.petId)}</span>`:''}<span class="title">${esc(v.reason)}</span><span class="meta">${fmt(v.date)}${v.clinic?' · '+esc(v.clinic):''}</span>${v.notes?`<span class="meta ink">${esc(v.notes)}</span>`:''}</span></button>`).join('')
        :`<div class="tile pad">${emptyBox('ยังไม่เคยไปหาหมอ','สุขภาพดี หรือแค่ยังไม่ได้จด? นิ่มสงสัย','',true,'healthbook')}</div>`}`;
   }else{const notes=st.notes.filter(n=>n.petId===p.id).sort((a,b)=>(b.updated||'').localeCompare(a.updated||''));
@@ -519,27 +521,20 @@ function remCard(r){const p=pet(r.petId);const nx=remNext(r);const ended=remEnde
     <p class="meta ink b">${ended?'จบแล้ว':r.paused?'หยุดชั่วคราวอยู่':nx?`ครั้งถัดไป ${nx===todayIso()?'วันนี้':fmt(nx)} ${timeTxt(r.time)}`:'ไม่มีรอบถัดไป'}</p>
     <div class="btn-row rem-acts">${ended?'':`<button type="button" class="switch ${r.paused?'off':''}" role="switch" aria-checked="${!r.paused}" data-act="toggleRem" data-id="${r.id}"><span class="track" aria-hidden="true"></span><span>${r.paused?'หยุดชั่วคราว':'เปิดเตือนอยู่'}</span></button>`}
     <span class="spacer"></span>${icoBtn('edit','แก้ไขเตือน '+esc(r.title),`data-act="editRem" data-id="${r.id}"`)}${icoBtn('trash','ลบเตือน '+esc(r.title),`data-act="delRem" data-id="${r.id}"`)}</div></article></div>`}
-function weekNote(byDay,ws){const off=Math.round((ws-weekStart(today()))/(7*864e5));
-  const lab=off===0?'สัปดาห์นี้':off===1?'สัปดาห์หน้า':off===-1?'สัปดาห์ที่แล้ว':`${shortDate(iso(ws))} – ${fmt(addDays(6,iso(ws)))}`;
-  const nx=[];for(let i=7;i<14;i++){const k=addDays(i,iso(ws));if((byDay[k]||[]).some(a=>a.status!=='done'))nx.push(parse(k))}
-  const nm=off===0?'สัปดาห์หน้า':'สัปดาห์ถัดไป';
-  let txt;if(!nx.length)txt=nm+'ยังไม่มีนัด';else{const sameM=nx.every(d=>d.getMonth()===nx[0].getMonth());
-    const parts=nx.map(d=>sameM?String(d.getDate()):d.getDate()+' '+MS[d.getMonth()]);const j=parts.length>1?parts.slice(0,-1).join(', ')+' และ '+parts[parts.length-1]:parts[0];
-    txt=nm+'มีนัด '+j+(sameM?' '+MS[nx[0].getMonth()]:'')}
-  return lab+' · '+txt+' · จุดสี = นัดของน้อง'}
 function apptsScreen(){
   const F=apFilter();const inF=it=>(!F.pets.length||F.pets.includes(it.petId))&&(!F.types.length||F.types.includes(it.type));
   const onePet=F.pets.length===1?F.pets[0]:'';
-  if(!AP.cursor)AP.cursor=weekStart(today());
-  const ws=AP.cursor;const we=new Date(ws);we.setDate(ws.getDate()+6);
+  if(!AP.cursor){const t=today();AP.cursor=new Date(t.getFullYear(),t.getMonth(),1)}
+  const y=AP.cursor.getFullYear(),m=AP.cursor.getMonth();const start=new Date(y,m,1-new Date(y,m,1).getDay());
   const items=allItems().filter(inF);
   const byDay={};items.forEach(a=>(byDay[a.date]=byDay[a.date]||[]).push(a));const T=todayIso();
-  const title=ws.getMonth()===we.getMonth()?`${ML[ws.getMonth()]} ${ws.getFullYear()+543}`:`${MS[ws.getMonth()]}${ws.getFullYear()!==we.getFullYear()?' '+(ws.getFullYear()+543):''} – ${MS[we.getMonth()]} ${we.getFullYear()+543}`;
-  let cells='';for(let i=0;i<7;i++){const d=new Date(ws);d.setDate(ws.getDate()+i);const k=iso(d);const has=byDay[k];
-    const ps=has?st.pets.filter(p=>has.some(a=>a.petId===p.id)):[];
-    const lab=`${d.getDate()} ${ML[d.getMonth()]} ${d.getFullYear()+543}${k===T?' วันนี้':''}${has?` มี ${has.length} รายการ ของ${ps.map(p=>esc(p.name)).join(', ')}`:''}`;
+  const title=`${ML[m]} ${y+543}`;let nMonth=0;
+  let cells='';for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const k=iso(d);const has=byDay[k];
+    if(i===35&&d.getMonth()!==m)break;const out=d.getMonth()!==m;if(has&&!out)nMonth+=has.filter(a=>a.status!=='done').length;
+    const ps=has?st.pets.filter(p=>has.some(a=>a.petId===p.id)):[];const od=has&&has.some(isOver);
+    const lab=`${d.getDate()} ${ML[d.getMonth()]} ${d.getFullYear()+543}${k===T?' วันนี้':''}${has?` มี ${has.length} รายการ ของ${ps.map(p=>esc(p.name)).join(', ')}${od?' มีรายการเลยกำหนด':''}`:''}`;
     const sel=AP.mode==='day'&&AP.sel===k;
-    cells+=`<button type="button" class="wday ${k===T?'today':''} ${has?'has':''} ${sel?'sel':''}" data-day="${k}" aria-pressed="${sel}" aria-label="${lab}"><span class="wd" aria-hidden="true">${WD[d.getDay()]}</span><span class="n" aria-hidden="true">${d.getDate()}</span><span class="dots" aria-hidden="true">${ps.slice(0,3).map(p=>dot(p)).join('')}${ps.length>3?'<span class="cmore">+</span>':''}</span></button>`}
+    cells+=`<button type="button" class="mday ${out?'out':''} ${k===T?'today':''} ${has?'has':''} ${od?'od':''} ${sel?'sel':''}" data-day="${k}" aria-pressed="${sel}" aria-label="${lab}"><span class="n" aria-hidden="true">${d.getDate()}</span><span class="dots" aria-hidden="true">${ps.slice(0,3).map(p=>dot(p)).join('')}${ps.length>3?'<span class="cmore">+</span>':''}</span></button>`}
   let body;
   if(AP.mode==='day'&&AP.sel){const ds=(byDay[AP.sel]||[]).sort(byDT);
     body=`<div class="section-head"><h2>${fmtLong(AP.sel)}</h2><span class="count">${ds.length} รายการ</span></div>`+(ds.length?ds.map(it=>itemCard(it)).join(''):`<div class="tile pad">${emptyBox('ว่างจ้า ไม่มีนัด','ไม่มีนัดเลย จะเพิ่มก็ได้นะ ไม่บังคับ',`<button type="button" class="btn yellow" data-act="addAppt" data-date="${AP.sel}" data-pet="${onePet}">+ เพิ่มนัด</button>`,true,'calendar')}</div>`);
@@ -557,10 +552,10 @@ function apptsScreen(){
   const h1=fp&&onePet===AP.from?'นัดหมายของ'+esc(fp.name):'ตารางนัดหมาย';
   return `<div class="screen scr-appts"><header class="hero">${statusGap}
    <div class="top-actions">${fp?backBtn('#/pet/'+fp.id):''}<div class="hero-copy inline"><h1>${h1}</h1></div><span class="spacer"></span><div class="actions">${right}</div></div>
-   <div class="week-card"><div class="week-head"><button type="button" class="btn-ico prev" data-wk="-1" aria-label="สัปดาห์ก่อน"><img src="${IC}btn-back.png" alt=""></button><h2 aria-live="polite">${title}</h2><button type="button" class="btn-ico next" data-wk="1" aria-label="สัปดาห์ถัดไป"><img src="${IC}btn-back.png" alt=""></button></div>
+   <div class="week-card month-card"><div class="week-head"><button type="button" class="btn-ico prev" data-cal="-1" aria-label="เดือนก่อน"><img src="${IC}btn-back.png" alt=""></button><h2 aria-live="polite">${title}</h2><button type="button" class="btn-ico next" data-cal="1" aria-label="เดือนถัดไป"><img src="${IC}btn-back.png" alt=""></button></div>
     <div class="seg center" role="group" aria-label="มุมมองรายการ"><button type="button" data-mode="day" aria-pressed="${AP.mode==='day'}" class="${AP.mode==='day'?'on':''}">รายวัน</button><button type="button" data-mode="all" aria-pressed="${AP.mode==='all'}" class="${AP.mode==='all'?'on':''}">ทั้งหมด</button></div>
-    <div class="week">${cells}</div>
-    <div class="week-legend">${legendPets.map(p=>pbadge(p)).join('')}<p>${weekNote(byDay,ws)}</p></div></div>
+    <div class="mgrid" role="group" aria-label="ปฏิทิน${title}">${WD.map(w=>`<span class="mwd" aria-hidden="true">${w}</span>`).join('')}${cells}</div>
+    <div class="week-legend">${legendPets.map(p=>pbadge(p)).join('')}${legendPets.length>3?'<span class="pet-chip"><span class="cmore">+</span> มากกว่า 3 ตัว</span>':''}<p>${nMonth?`เดือนนี้มี ${nMonth} นัดที่ยังไม่เช็ค`:'เดือนนี้ยังไม่มีนัด'} · จุดสี = นัดของน้อง · แตะวันเพื่อดูนัดวันนั้น</p></div></div>
    </header>
    <section class="content">
    ${fp?`<div class="ctx-bar">${pbadge(fp)}<span>มาจากโปรไฟล์${esc(fp.name)}</span><button type="button" class="link" data-go="#/pet/${fp.id}">กลับโปรไฟล์</button></div>`:''}
@@ -654,7 +649,7 @@ function route(){
   else if(seg[0]==='health'){if(fresh&&q.tab&&HTABS.some(t=>t[0]===q.tab))healthTab=q.tab;html=healthScreen(seg[1]);
     if(fresh)afterRender.push(()=>{const c=app.querySelector('.switcher [aria-selected="true"]');centerChip(c)})}
   else if(seg[0]==='appts'&&q.rem)html=remindersScreen();
-  else if(seg[0]==='appts'){if(fresh){const from=q.pet&&pet(q.pet)?q.pet:'';if(from)AP.pets=[from];else if(AP.from)AP.pets=[];AP.from=from;AP.showAll=false;if(q.day){AP.mode='day';AP.sel=q.day;AP.cursor=weekStart(parse(q.day))}}
+  else if(seg[0]==='appts'){if(fresh){const from=q.pet&&pet(q.pet)?q.pet:'';if(from)AP.pets=[from];else if(AP.from)AP.pets=[];AP.from=from;AP.showAll=false;if(q.day){AP.mode='day';AP.sel=q.day;{const qd=parse(q.day);AP.cursor=new Date(qd.getFullYear(),qd.getMonth(),1)}}}
     html=apptsScreen()}
   else if(seg[0]==='reminders')html=remindersScreen();
   else if(seg[0]==='overdue')html=overdueScreen();
@@ -785,18 +780,30 @@ function weightSheet(pid){const p=pet(pid);if(!p)return;const ws=(p.weights||[])
 function weightChart(ws){
   if(!ws.length)return `<div class="chart-empty">ยังไม่มีน้ำหนัก ใส่ครั้งแรกด้านล่าง</div>`;
   if(ws.length<2)return `<div class="chart-empty">มีแค่ ${ws[0].kg} กก. (${fmt(ws[0].date)}) ใส่อีกครั้งเพื่อดูเทรนด์</div>`;
-  const W=320,H=150,L=40,R=12,T=14,B=28;const xs=ws.map(w=>parse(w.date).getTime());const ys=ws.map(w=>w.kg);
+  /* every entry gets a date label on the x-axis: short BE (17 พ.ค. 68). Layout: one row if roomy, staggered 2 rows if tight, rotated if crowded */
+  const n=ws.length,W=320,L=40,R=22,T=14,PH=108;const xs=ws.map(w=>parse(w.date).getTime());const ys=ws.map(w=>w.kg);
   let x0=Math.min(...xs),x1=Math.max(...xs);if(x0===x1)x1=x0+1;let y0=Math.min(...ys),y1=Math.max(...ys);const padY=Math.max((y1-y0)*.2,.2);y0=Math.max(0,y0-padY);y1+=padY;
-  const X=t=>L+(t-x0)/(x1-x0)*(W-L-R),Y=v=>T+(1-(v-y0)/(y1-y0))*(H-T-B);
-  const pts=ws.map((w,i)=>`${X(xs[i]).toFixed(1)},${Y(w.kg).toFixed(1)}`).join(' ');
-  const first=ws[0],last=ws[ws.length-1];const d=Math.round((last.kg-first.kg)*100)/100;
-  return `<figure class="chart tile"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="กราฟน้ำหนัก ${ws.length} ครั้ง จาก ${first.kg} เป็น ${last.kg} กิโลกรัม">
-    <line x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}" stroke="#1E1E1E" stroke-width="1.5"/><line x1="${L}" y1="${T}" x2="${L}" y2="${H-B}" stroke="#1E1E1E" stroke-width="1.5"/>
-    <text x="${L-6}" y="${T+10}" text-anchor="end" class="ax">${y1.toFixed(1)}</text><text x="${L-6}" y="${H-B}" text-anchor="end" class="ax">${y0.toFixed(1)}</text>
-    <text x="${L}" y="${H-8}" class="ax">${fmt(first.date)}</text><text x="${W-R}" y="${H-8}" text-anchor="end" class="ax">${fmt(last.date)}</text>
+  const X=t=>L+(t-x0)/(x1-x0)*(W-L-R);const px=xs.map(X);
+  const sd=iso=>{const d=parse(iso);return `${d.getDate()} ${MS[d.getMonth()]} ${String((d.getFullYear()+543)%100).padStart(2,'0')}`};
+  let gap=Infinity;for(let i=1;i<n;i++)gap=Math.min(gap,px[i]-px[i-1]);
+  const LW=50;const mode=gap>=LW?'row':(gap>=LW/2&&n<=8)?'stagger':'rot';
+  const B=mode==='row'?24:mode==='stagger'?40:58;const H=T+PH+B;const base=T+PH;
+  const Y=v=>T+(1-(v-y0)/(y1-y0))*PH;
+  const pts=ws.map((w,i)=>`${px[i].toFixed(1)},${Y(w.kg).toFixed(1)}`).join(' ');
+  const labels=ws.map((w,i)=>{const x=px[i];
+    if(mode==='rot')return `<text class="ax" text-anchor="end" transform="translate(${(x+3).toFixed(1)},${base+12}) rotate(-45)">${sd(w.date)}</text>`;
+    const row=mode==='stagger'?i%2:0;const anc=n>1&&x-LW/2<L-14?'start':x+LW/2>W-2?'end':'middle';
+    const ax=anc==='start'?x-6:anc==='end'?x+6:x;
+    return `${row?`<line x1="${x.toFixed(1)}" y1="${base+3}" x2="${x.toFixed(1)}" y2="${base+17}" stroke="#CFC8B8" stroke-width="1"/>`:''}<text class="ax" text-anchor="${anc}" x="${ax.toFixed(1)}" y="${base+15+row*16}">${sd(w.date)}</text>`}).join('');
+  const ticks=px.map(x=>`<line x1="${x.toFixed(1)}" y1="${base}" x2="${x.toFixed(1)}" y2="${base+4}" stroke="#1E1E1E" stroke-width="1.5"/><line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${base}" stroke="#E6E0D2" stroke-width="1" stroke-dasharray="3 3"/>`).join('');
+  const first=ws[0],last=ws[n-1];const d=Math.round((last.kg-first.kg)*100)/100;
+  return `<figure class="chart tile"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="กราฟน้ำหนัก ${n} ครั้ง: ${ws.map(w=>fmt(w.date)+' '+w.kg+' กก.').join(', ')}">
+    ${ticks}<line x1="${L}" y1="${base}" x2="${W-R+8}" y2="${base}" stroke="#1E1E1E" stroke-width="1.5"/><line x1="${L}" y1="${T}" x2="${L}" y2="${base}" stroke="#1E1E1E" stroke-width="1.5"/>
+    <text x="${L-6}" y="${T+10}" text-anchor="end" class="ax">${y1.toFixed(1)}</text><text x="${L-6}" y="${base}" text-anchor="end" class="ax">${y0.toFixed(1)}</text>
+    ${labels}
     <polyline points="${pts}" fill="none" stroke="#2747C8" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
-    ${ws.map((w,i)=>`<circle cx="${X(xs[i]).toFixed(1)}" cy="${Y(w.kg).toFixed(1)}" r="5" fill="#FFD23F" stroke="#1E1E1E" stroke-width="2"/>`).join('')}</svg>
-    <figcaption>${d===0?'น้ำหนักคงที่':d>0?`เพิ่มขึ้น ${d} กก.`:`ลดลง ${-d} กก.`} ตั้งแต่ ${fmt(first.date)}</figcaption></figure>`}
+    ${ws.map((w,i)=>`<circle cx="${px[i].toFixed(1)}" cy="${Y(w.kg).toFixed(1)}" r="5" fill="#FFD23F" stroke="#1E1E1E" stroke-width="2"/>`).join('')}</svg>
+    <figcaption>${d===0?'น้ำหนักคงที่':d>0?`เพิ่มขึ้น ${d} กก.`:`ลดลง ${-d} กก.`} ตั้งแต่ ${fmt(first.date)} · บันทึก ${n} ครั้ง</figcaption></figure>`}
 function noteSheet(n,petId){const isNew=!n;n=n||{text:'',petId};const p=pet(n.petId);if(!p)return;if(photoURLs['note:draft']){URL.revokeObjectURL(photoURLs['note:draft']);delete photoURLs['note:draft']}
   openSheet(`${sheetHead(isNew?'เขียนโน๊ตเจ้าของ':'แก้ไขโน๊ต',`ของ${esc(p.name)} · เรื่องส่วนตัว จดไว้กันลืม`,'note')}
    <form id="noteForm" data-id="${isNew?'':n.id}" data-pet="${p.id}" novalidate>
@@ -944,7 +951,7 @@ document.addEventListener('click',e=>{
   const ht=e.target.closest('[data-htab]');if(ht){healthTab=ht.dataset.htab;pendingFocus='#htab-'+healthTab;rerender();return}
   const pc=e.target.closest('[data-pchip]');if(pc){pendingFocus=`[data-pchip="${pc.dataset.pchip}"]`;go(pc.dataset.go);return}
   const md=e.target.closest('[data-mode]');if(md){AP.mode=md.dataset.mode;if(AP.mode==='day'&&!AP.sel)AP.sel=todayIso();pendingFocus=`[data-mode="${AP.mode}"]`;rerender();return}
-  const wk=e.target.closest('[data-wk]');if(wk){const c=AP.cursor||weekStart(today());AP.cursor=new Date(c.getFullYear(),c.getMonth(),c.getDate()+7*Number(wk.dataset.wk));pendingFocus=`[data-wk="${wk.dataset.wk}"]`;rerender();return}
+  const cl=e.target.closest('[data-cal]');if(cl){const c=AP.cursor;AP.cursor=new Date(c.getFullYear(),c.getMonth()+Number(cl.dataset.cal),1);pendingFocus=`[data-cal="${cl.dataset.cal}"]`;rerender();return}
   const dy=e.target.closest('[data-day]');if(dy){AP.mode='day';AP.sel=dy.dataset.day;pendingFocus=`[data-day="${AP.sel}"]`;rerender();return}
   const g=e.target.closest('[data-go]');if(g&&!e.target.closest('[data-act]')){go(g.dataset.go);return}
   const b=e.target.closest('[data-act]');if(!b)return;const A=b.dataset.act,id=b.dataset.id,pid=b.dataset.pet,key=b.dataset.key;
