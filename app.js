@@ -100,7 +100,7 @@ const VACS=[
 const VACMAP=Object.fromEntries(VACS.map(v=>[v.value,v]));
 const vacOpts=sp=>VACS.filter(v=>v.species==='all'||v.species===sp);
 const IC='';
-const NIM={main:IC+'nim-hero.png',hello:IC+'nim-pets.png',writing:IC+'nim-note.png',trash:IC+'nim-alert.png',syringe:IC+'nim-syringe.png',healthbook:IC+'nim-healthbook.png',appointment:IC+'nim-calendar.png',thumbsup:IC+'nim-check.png',sleep:IC+'nim-check.png',badge:IC+'nim-family.png',alert:IC+'nim-alert.png',bell:IC+'nim-bell.png',reminder:IC+'nim-reminder.png',family:IC+'nim-family.png',weight:IC+'nim-weight.png',check:IC+'nim-check.png',note:IC+'nim-note.png',pets:IC+'nim-pets.png',calendar:IC+'nim-calendar.png',cling:IC+'nim-cling.png'};
+const NIM={main:IC+'nim-hero.png',hello:IC+'nim-pets.png',writing:IC+'nim-note.png',trash:IC+'nim-alert.png',syringe:IC+'nim-syringe.png',healthbook:IC+'nim-healthbook.png',appointment:IC+'nim-calendar.png',thumbsup:IC+'nim-check.png',sleep:IC+'nim-check.png',badge:IC+'nim-family.png',alert:IC+'nim-alert.png',bell:IC+'nim-bell.png',reminder:IC+'nim-reminder.png',family:IC+'nim-family.png',weight:IC+'nim-weight.png',check:IC+'nim-check.png',note:IC+'nim-note.png',pets:IC+'nim-pets.png',calendar:IC+'nim-calendar.png'};
 const PETIMG={cat:IC+'pet-cat.png',dog:IC+'pet-dog.png',rabbit:IC+'pet-rabbit.png'};
 const NIM_DESC='ก้อนเต้าหู้ไหมหน้าตาย ใส่หมวกพยาบาลลายอุ้งเท้า มีต้นหอมแปะหัว คอยจดทุกนัดแบบขี้เกียจแต่ชัวร์';
 
@@ -237,8 +237,8 @@ const dot=(p,cls)=>`<i class="dot ${p.color==='calico'?'calico':''} ${p.color===
 const pbadge=p=>p?`<span class="pet-chip">${dot(p)}<span class="pb-name">${esc(p.name)}</span></span>`:'';
 const faceInner=p=>PETIMG[p.species]?`<img src="${PETIMG[p.species]}" alt="" aria-hidden="true" decoding="async">`:`<span class="letter" style="background:${colorHex(p)}">${esc(String(p.name||'?').slice(0,1))}</span>`;
 const face=(p,cls)=>`<span class="face ${cls||''}">${faceInner(p)}</span>`;
-/* reusable pet avatar: pet picture (or letter on pet colour) in a round frame with a tiny Nim clinging on the rim. size: sm | md | lg */
-const petAva=(p,size,label)=>`<span class="pava ${size||'md'}"${label?` role="img" aria-label="${esc(label)}"`:' aria-hidden="true"'}><span class="pava-ring">${faceInner(p)}</span><img class="pava-nim" src="${NIM.cling}" alt="" aria-hidden="true" decoding="async"></span>`;
+/* reusable pet avatar: pet picture (or letter on pet colour) under the hole of the one-piece Nim frame (pet-frame.png). Hole: centre 50%/59.375%, Ø46.1% of the frame box. size: sm | md | lg */
+const petAva=(p,size,label)=>`<span class="pava ${size||'md'}"${label?` role="img" aria-label="${esc(label)}"`:' aria-hidden="true"'}><span class="pava-pet">${faceInner(p)}</span><img class="pava-frame" src="${IC}pet-frame.png" alt="" aria-hidden="true" decoding="async"></span>`;
 const petArt=p=>PETIMG[p.species]||NIM.pets;
 const emptyBox=(title,text,btn,mini,pose)=>`<div class="empty ${mini?'mini':''}">${nimImg(pose||'check','',mini?84:120)}<h3>${title}</h3><p>${text}</p>${btn||''}</div>`;
 const breedTxt=p=>!p.breed?'':(p.breed===BREED_UNK?'ไม่ทราบพันธุ์':p.breed);
